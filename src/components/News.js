@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import NewsItem from './NewsItem';
 import Loading from './Loading';
-import config from '../config';
 
 export class News extends Component {
     constructor() {
@@ -18,8 +17,8 @@ export class News extends Component {
     async fetchNews(apiKey) {
         const { category, pageSize } = this.props;
         const { page } = this.state;
-        let url = `${config.baseUrl}?country=in&category=${category}&apiKey=${apiKey}&page=${page}&pageSize=${pageSize}`;
-        
+        let url = `http://localhost:5000/news?category=${category}&page=${page}&pageSize=${pageSize}`;
+
         this.setState({ loading: true });
 
         try {
@@ -43,14 +42,10 @@ export class News extends Component {
     }
 
     async componentDidMount() {
-        for (const key of config.apiKeys) {
-            if (await this.fetchNews(key)) {
-                this.setState({ api: key });
-                return;
-            }
+        // Only need to call fetchNews once, proxy handles API keys
+        if (!(await this.fetchNews())) {
+            this.setState({ notWorking: true, loading: false });
         }
-        
-        this.setState({ notWorking: true, loading: false });
     }
 
     handlePrevClick = async () => {
